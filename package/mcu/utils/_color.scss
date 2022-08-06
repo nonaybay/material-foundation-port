@@ -121,3 +121,24 @@
 
   @return color.change(black, $red: $r, $green: $g, $blue: $b);
 }
+
+@function rgb-from-lab($lab) {
+  $labl: lmath.gm($lab, 1);
+  $laba: lmath.gm($lab, 2);
+  $labb: lmath.gm($lab, 3);
+  $wp: $WP_D65;
+  $fy: math.div(($labl + 16), 116);
+  $fx: (math.div($a, 500) + $fy);
+  $fz: ($fy - math.div($b, 200));
+  $xn: lab-f-inv($fx);
+  $yn: lab-f-inv($fy);
+  $zn: lab-f-inv($fz);
+
+  $x: ($xn * lmath.gm($wp, 1, 1));
+  $y: ($yn * lmath.gm($wp, 1, 2));
+  $z: ($zn * lmath.gm($wp, 1, 3));
+
+  $xyz-as-matrix: ( ($x, $y, $z, ), );
+
+  @return rgb-from-xyz($xyz-as-matrix);
+}
