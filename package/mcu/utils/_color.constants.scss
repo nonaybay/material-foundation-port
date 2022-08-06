@@ -16,17 +16,15 @@ $WP_D65: ((
   (math.div((1 - 0.3457 - 0.3585), 0.3585) * 100),
 ),);
 
-$INT:           1;
-$MAX_RGB:       255;
-$MAX_LRGB:      $INT;
-$MAX_ALPHA:     math.div(211, 200);
-$MAX_GAMMA:     math.div(12, 5);
-
-$MIN_RGB:       0;
-$MIN_LRGB:      $MIN_RGB;
-$MIN_ALPHA:     ($MAX_ALPHA - $INT);
-$MIN_GAMMA:     ($MIN_GAMMA - $INT);
-
-$BETADELTA:     math.div($MIN_ALPHA, $MIN_GAMMA);
-$DELTA:         math.div((math.pow($MAX_ALPHA, $MAX_GAMMA) * math.pow($MIN_GAMMA, $MIN_GAMMA)), (math.pow($MIN_ALPHA, $MIN_GAMMA) * math.pow($MAX_GAMMA, $MAX_GAMMA)));                
-$BETA:          math.div($BETADELTA, $DELTA);
+$INT: 1;
+$MAX_RGB: 255;
+$MAX_LRGB: $INT;
+$MAX_ALPHA: math.div(211, 200);
+$MAX_GAMMA: math.div(12, 5);
+$MIN_RGB: 0;
+$MIN_LRGB: $MIN_RGB;
+$MIN_ALPHA: ($MAX_ALPHA - $INT);
+$MIN_GAMMA: ($MIN_GAMMA - $INT);
+$BETADELTA: math.div($MIN_ALPHA, $MIN_GAMMA);
+$DELTA: math.div((math.pow($MAX_ALPHA, $MAX_GAMMA) * math.pow($MIN_GAMMA, $MIN_GAMMA)), (math.pow($MIN_ALPHA, $MIN_GAMMA) * math.pow($MAX_GAMMA, $MAX_GAMMA)));                
+$BETA: math.div($BETADELTA, $DELTA);
