@@ -59,3 +59,15 @@
     @return math.div(($k * $t + 16), 116);
   }
 }
+
+@function lab-f-inv($ft) {
+  $e: math.div(216, 24389);
+  $k: math.div(24389, 27);
+  $ft3: math.pow($ft, 3);
+
+  @if ($ft3 > $e) {
+    @return $ft3;
+  } @else {
+    @return math.div((116 * $ft - 16), $k);
+  }
+}
