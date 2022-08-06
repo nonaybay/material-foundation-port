@@ -8,9 +8,7 @@
 
   @if ($n <=$BETADELTA) {
     @return (math.div($n, $DELTA) * 100);
-  }
-
-  @else {
+  } @else {
     @return (math.pow(math.div(($n + $MIN_ALPHA), $MAX_ALPHA), $MAX_GAMMA) * 100);
   }
 }
