@@ -1,1 +1,0 @@
-<pre><strong>just for organization:</strong><hr/><ol><li>get red</li><li>get green</li><li>get blue</li><hr/><li>linearized</li><li>delinearized</li><hr/><li>lab-f</li><li>lab-f-inv</li><hr/><li>rgb ~> xyz</li><li>rgb ~> lab</li><li>rgb ~> lstar</li><hr/><li>xyz ~> rgb</li><hr/><li>lab ~> rgb</li><hr/><li>lstar ~> Y</li><li>lstar ~> rgb</li></ol></pre>
