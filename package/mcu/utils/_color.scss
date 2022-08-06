@@ -1,3 +1,4 @@
+@use 'sass:math';
 @use 'math' as lmath;
 @use 'color.constants' as *;
 
@@ -11,4 +12,17 @@
   } @else {
     @return (math.pow(math.div(($n + $MIN_ALPHA), $MAX_ALPHA), $MAX_GAMMA) * 100);
   }
+}
+
+@function delinearized($x) {
+  $n: math.div($x, 100);
+  $d: 0;
+
+  @if ($n <= $BETA) {
+    $d: ($n * $DELTA);
+  } @else {
+    $d: ($MAX_GAMMA * math.pow($n, math.div($INT, $MAX_GAMMA)) - $MIN_GAMMA);
+  }
+
+  @return math.clamp(0, ($d * $MAX_RGB), $MAX_RGB);
 }
