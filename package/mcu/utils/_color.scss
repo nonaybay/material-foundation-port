@@ -45,4 +45,6 @@
   $g: linearized(get-g($rgb));
   $b: linearized(get-b($rgb));
   $m: (($r, $g, $b,),);
+
+  @return lmath.matrix-multiply($m, $SRGB_XYZ);
 }
