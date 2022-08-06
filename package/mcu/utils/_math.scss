@@ -37,16 +37,16 @@
 
 
 
-@function _gm($m, $r: 1, $c: 1) {
+@function gm($m, $r: 1, $c: 1) {
         @return list.nth(list.nth($m, $r), $c);
 }
 
 
 
 @function matrix-multiply($row, $matrix) {
-  $a: _gm($row, 1, 1) * _gm($matrix, 1, 1)+_gm($row, 1, 2) * _gm($matrix, 1, 2)+_gm($row, 1, 3) * _gm($matrix, 1, 3);
-  $b: _gm($row, 1, 1) * _gm($matrix, 2, 1)+_gm($row, 1, 2) * _gm($matrix, 2, 2)+_gm($row, 1, 3) * _gm($matrix, 2, 3);
-  $c: _gm($row, 1, 1) * _gm($matrix, 3, 1)+_gm($row, 1, 2) * _gm($matrix, 3, 2)+_gm($row, 1, 3) * _gm($matrix, 3, 3);
+  $a: gm($row, 1, 1) * gm($matrix, 1, 1)+gm($row, 1, 2) * gm($matrix, 1, 2)+gm($row, 1, 3) * gm($matrix, 1, 3);
+  $b: gm($row, 1, 1) * gm($matrix, 2, 1)+gm($row, 1, 2) * gm($matrix, 2, 2)+gm($row, 1, 3) * gm($matrix, 2, 3);
+  $c: gm($row, 1, 1) * gm($matrix, 3, 1)+gm($row, 1, 2) * gm($matrix, 3, 2)+gm($row, 1, 3) * gm($matrix, 3, 3);
 
   @return (($a, $b, $c), );
 }
