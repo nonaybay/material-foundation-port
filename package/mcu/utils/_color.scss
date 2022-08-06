@@ -142,3 +142,14 @@
 
   @return rgb-from-xyz($xyz-as-matrix);
 }
+
+@function Y-from-lstar($lstar) {
+  @return (100 * lab-f-inv(math.div(($lstar + 16), 116)));
+}
+
+@function rgb-from-lstar($lstar) {
+  $y: Y-from-lstar($lstar);
+  $c: delinearized($y);
+
+  @return color.change(black, $red: $c, $green: $c, $blue: $c);
+}
