@@ -39,3 +39,10 @@
 @function get-b($c) {
   @return color.blue($c);
 }
+
+@function xyz-from-rgb($rgb) {
+  $r: linearized(get-r($rgb));
+  $g: linearized(get-g($rgb));
+  $b: linearized(get-b($rgb));
+  $m: (($r, $g, $b,),);
+}
