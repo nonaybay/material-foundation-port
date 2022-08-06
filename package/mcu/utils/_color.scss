@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use 'sass:math';
 @use 'math' as lmath;
 @use 'color.constants' as *;
@@ -25,4 +26,16 @@
   }
 
   @return math.clamp(0, ($d * $MAX_RGB), $MAX_RGB);
+}
+
+@function get-r($c) {
+  @return color.red($c);
+}
+
+@function get-g($c) {
+  @return color.green($c);
+}
+
+@function get-b($c) {
+  @return color.blue($c);
 }
