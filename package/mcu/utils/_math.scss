@@ -1,0 +1,52 @@
+@use 'sass:list';
+@use 'sass:math';
+
+
+
+@function signum($n) {
+        @return if(($num < 0), -1, if(($num > 0), 1, 0));
+}
+
+
+
+@function lerp($a, $b, $c) {
+        @return ((1 - $c) * $a + $c * $b);
+}
+
+
+
+@function sanitize-deg($deg) {
+        $deg: ($deg % 360);
+
+        @return if(($deg < 0), ($deg + 360), $deg);
+}
+
+
+
+@function rotation-direction($a, $b) {
+        $inc-diff: sanitize-deg($b - $a);
+
+        @return if(($inc-diff <= 180), 1, -1);
+}
+
+
+
+@function diff-deg($a, $b) {
+        @return (180 - math.abs(math.abs($a - $b) - 180));
+}
+
+
+
+@function _gm($m, $r: 1, $c: 1) {
+        @return list.nth(list.nth($m, $r), $c);
+}
+
+
+
+@function matrix-multiply($row, $matrix) {
+  $a: _gm($row, 1, 1) * _gm($matrix, 1, 1)+_gm($row, 1, 2) * _gm($matrix, 1, 2)+_gm($row, 1, 3) * _gm($matrix, 1, 3);
+  $b: _gm($row, 1, 1) * _gm($matrix, 2, 1)+_gm($row, 1, 2) * _gm($matrix, 2, 2)+_gm($row, 1, 3) * _gm($matrix, 2, 3);
+  $c: _gm($row, 1, 1) * _gm($matrix, 3, 1)+_gm($row, 1, 2) * _gm($matrix, 3, 2)+_gm($row, 1, 3) * _gm($matrix, 3, 3);
+
+  @return (($a, $b, $c), );
+}
