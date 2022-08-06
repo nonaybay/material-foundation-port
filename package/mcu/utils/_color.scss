@@ -100,3 +100,9 @@
 
   @return $lab-as-matrix;
 }
+
+@function lstar-from-rgb($rgb) {
+  $y: lmath.gm(xyz-from-rgb($rgb), 1, 2);
+
+  @return (116 * lab-f(math.div($y, 100)) - 16);
+}
