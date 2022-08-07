@@ -1,5 +1,5 @@
 @use 'sass:math';
-@use '../utils/color.constants' as *;
+@use '../../glob/constants/color' as *;
 @use '../utils/color' as *;
 @use '../utils/math' as *;
 

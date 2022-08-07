@@ -1,5 +1,5 @@
-0a2f6b24 ~> package/mcu/hct/_viewing_conditions.scss
+df12b75c ~> package/mcu/hct/_viewing_conditions.scss
 a446555e ~> package/mcu/utils/_math.scss
-e4e6ed15 ~> package/mcu/utils/_color.scss
-321a7895 ~> package/mcu/utils/_color.constants.scss
+fa539bc8 ~> package/mcu/utils/_color.scss
+321a7895 ~> package/glob/constants/_color.scss
 7e799d89 ~> README.md

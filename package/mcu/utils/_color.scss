@@ -1,7 +1,7 @@
 @use 'sass:color';
 @use 'sass:math';
 @use 'math' as lmath;
-@use 'color.constants' as *;
+@use '../../glob/constants/color' as *;
 
 
 
