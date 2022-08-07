@@ -3,81 +3,249 @@
 @use '../utils/color' as *;
 @use '../utils/math' as *;
 
-@function viewing-conditions($wp: $WP_D65, $adaplum: -1, $bg-lstar: 50, $surr: 2, $discounting-illum: false) {
-  $adaplum: if(($adaplum > 0), $adaplum, (math.div(200, math.$pi) * math.div(Y-from-lstar(50), 100)));
-  $bg-lstar: math.max(30, $bg-lstar);
-  $xyz: $wp;
-  $rW: gm($xyz, 1, 1) * 0.401288 + gm($xyz, 1, 2) * 0.650173 + gm($xyz, 1, 3) * -0.051461;
-  $gW: gm($xyz, 1, 1) * -0.250268 + gm($xyz, 1, 2) * 1.204414 + gm($xyz, 1, 3) * 0.045854;
-  $bW: gm($xyz, 1, 1) * -0.002079 + gm($xyz, 1, 2) * 0.048952 + gm($xyz, 1, 3) * 0.953127;
+@function vc-adapting-luminance($adapting-luminance) {
+  @if ($adapting-luminance > 0) {
+    $adapting-luminance: $adapting-luminance;
+  } @else {
+    $adapting-luminance: (math.div(200, math.$pi) * math.div(Y-from-lstar(50), 100));
+  }
 
-  $f: 0.8 + math.div($surr, 10);
-  
-  $c: if(($f >= 0.9), lerp(0.59, 0.69, (($f - 0.9) * 10)) , lerp(0.525, 0.59, (($f - 0.8) * 10)) );
+  @return $adapting-luminance;
+}
 
-  $d: if($discounting-illum, $INT , ($f * (1 - (math.div(1, 3.6) * math.pow(math.$e, math.div((($adaplum * -1) - 42), 92))))) );
+@function vc-background-lstar($background-lstar) {
+  @return $background-lstar;
+}
+
+@function vc-whitepoint($whitepoint) {
+  @return $whitepoint;
+}
+
+@function vc-xyz($whitepoint) {
+  @return vc-whitepoint($whitepoint);
+}
+
+@function _hack_color_w($whitepoint, $a, $b, $c) {
+  $x: gm(vc-xyz($whitepoint), 1, 1);
+  $y: gm(vc-xyz($whitepoint), 1, 2);
+  $z: gm(vc-xyz($whitepoint), 1, 3);
+
+  @return ($x * $a) + ($y * $b) + ($z * $c);
+}
+
+@function vc-rw($whitepoint) {
+  @return _hack_color_w($whitepoint, 0.401288, 0.650173, -0.051461);
+}
+
+@function vc-gw($whitepoint) {
+  @return _hack_color_w($whitepoint, -0.250268, 1.204414, 0.045854);
+}
+
+@function vc-bw($whitepoint) {
+  @return _hack_color_w($whitepoint, -0.002079, 0.048952, 0.953127);
+}
+
+@function vc-surround($surround) {
+  @return $surround;
+}
+
+@function vc-f($surround) {
+  $surround: vc-surround($surround);
+
+  @return (0.8 + math.div($surround, 10));
+}
+
+@function vc-c($surround) {
+  $f: vc-f($surround);
+
+  @if ($f >= 0.9) {
+    @return lerp(0.59, 0.69, (($f - 0.9) * 10));
+  } @else {
+    @return lerp(0.525, 0.59, (($f - 0.8) * 10));
+  }
+}
+
+@function vc-discounting-illuminance($discounting-illuminance) {
+  @return $discounting-illuminance;
+}
+
+@function vc-d($discounting-illuminance, $surround, $adapting-luminance) {
+  $discounting-illuminance: vc-discounting-illuminance($discounting-illuminance);
+  $f: vc-f($surround);
+  $adapting-luminance: vc-adapting-luminance($adapting-luminance);
+
+  $d: if($discounting-illuminance, 1, ($f * (1 - (math.div(1, 3.6) * math.pow(math.$e, math.div((($adapting-luminance * -1) - 42), 92))))));
   $d: if(($d > 1), 1, if(($d < 0), 0, $d));
 
-  $nc: $f;
+  @return $d;
+}
 
-  $rgb-d: (
-    ( ($d * math.div(100, $rW) + 1 - $d), ($d * math.div(100, $gW) + 1 - $d), ($d * math.div(100, $bW) + 1 - $d), ),
+@function vc-nc($surround) {
+  @return vc-f($surround);
+}
+
+@function vc-rgbd($discounting-illuminance, $surround, $adapting-luminance, $whitepoint) {
+  $d: vc-d($discounting-illuminance, $surround, $adapting-luminance);
+  $rw: vc-rw($whitepoint);
+  $gw: vc-gw($whitepoint);
+  $bw: vc-bw($whitepoint);
+
+  $item-1: ($d * math.div(100, $rw) + 1 - $d);
+  $item-2: ($d * math.div(100, $gw) + 1 - $d);
+  $item-3: ($d * math.div(100, $bw) + 1 - $d);
+
+  $matrix: ( ($item-1, $item-2, $item-3, ), );
+
+  @return $matrix;
+}
+
+@function vc-k($adapting-luminance) {
+  $adapting-luminance: vc-adapting-luminance($adapting-luminance);
+
+  @return math.div(1, (5 * $adapting-luminance + 1));
+}
+
+@function vc-k4($adapting-luminance) {
+  $k: vc-k($adapting-luminance);
+
+  @return math.pow($k, 4);
+}
+
+@function vc-k4f($adapting-luminance) {
+  $k4: vc-k4($adapting-luminance);
+
+  @return (1 - $k4);
+}
+
+@function vc-fl($adapting-luminance) {
+  $adapting-luminance: vc-adapting-luminance($adapting-luminance);
+  $k4: vc-k4($adapting-luminance);
+  $k4f: vc-k4f($adapting-luminance);
+
+  $output: math.pow((5 * $adapting-luminance), math.div(1, 3));
+
+  @return ($k4 * $adapting-luminance);
+}
+
+@function vc-n($background-lstar, $whitepoint) {
+  $background-lstar: vc-background-lstar($background-lstar);
+  $whitepoint: vc-whitepoint($whitepoint);
+  $whitepoint: gm($whitepoint, 1, 2);
+
+  @return math.div(Y-from-lstar($background-lstar), $whitepoint);
+}
+
+@function vc-z($background-lstar, $whitepoint) {
+  $background-lstar: vc-background-lstar($background-lstar);
+  $whitepoint: vc-whitepoint($whitepoint);
+  $n: vc-n($background-lstar, $whitepoint);
+
+  @return (1.48 + math.sqrt($n));
+}
+
+@function vc-nbb($background-lstar, $whitepoint) {
+  $n: vc-n($background-lstar, $whitepoint);
+
+  @return math.div(0.725, math.pow($n, 0.2));
+}
+
+@function vc-ncb($background-lstar, $whitepoint) {
+  $nbb: vc-nbb($background-lstar, $whitepoint);
+
+  @return $nbb;
+}
+
+@function vc-rgba-factors($adapting-luminance, $discounting-illuminance, $surround, $whitepoint) {
+  $fl: vc-fl($adapting-luminance);
+  $rgb-d: vc-rgbd($discounting-illuminance, $surround, $adapting-luminance, $whitepoint);
+  $rw: vc-rw($whitepoint);
+  $gw: vc-gw($whitepoint);
+  $bw: vc-bw($whitepoint);
+
+  $item-1: math.pow($fl * gm($rgb-d, 1, 1) * math.div($rw, 100), 0.42);
+  $item-2: math.pow($fl * gm($rgb-d, 1, 2) * math.div($gw, 100), 0.42);
+  $item-3: math.pow($fl * gm($rgb-d, 1, 3) * math.div($bw, 100), 0.42);
+
+  $matrix: (($item-1, $item-2, $item-3,),);
+
+  @return $matrix;
+}
+
+@function vc-rgba($adapting-luminance, $discounting-illuminance, $surround, $whitepoint) {
+  $rgb-a-factors: vc-rgba-factors($adapting-luminance, $discounting-illuminance, $surround, $whitepoint);
+
+  $item-1: math.div((400 * gm($rgb-a-factors, 1, 1)), (gm($rgb-a-factors, 1, 1) + 27.13));
+  $item-2: math.div((400 * gm($rgb-a-factors, 1, 2)), (gm($rgb-a-factors, 1, 2) + 27.13));
+  $item-3: math.div((400 * gm($rgb-a-factors, 1, 3)), (gm($rgb-a-factors, 1, 3) + 27.13));
+
+  $matrix: (($item-1, $item-2, $item-3,),);
+
+  @return $matrix;
+}
+
+@function vc-aw($adapting-luminance, $discounting-illuminance, $surround, $whitepoint, $background-lstar) {
+  $rgba: vc-rgba($adapting-luminance, $discounting-illuminance, $surround, $whitepoint);
+  $nbb: vc-nbb($background-lstar, $whitepoint);
+  
+  $rgba-1: gm($rgba, 1, 1);
+  $rgba-2: gm($rgba, 1, 2);
+  $rgba-3: gm($rgba, 1, 3);
+
+
+  @return (40 * $rgba-1);
+
+}
+
+@function viewing-conditions(
+  $whitepoint: $WP_D65,
+  $adapting-luminance: -1,
+  $background-lstar: 50,
+  $surround: 2,
+  $discounting-illuminance: false,
+) {
+
+  $whitepoint: vc-whitepoint($whitepoint);
+  $adapting-luminance: vc-adapting-luminance($adapting-luminance);
+  $background-lstar: vc-background-lstar($background-lstar);
+  $surround: vc-surround($surround);
+  $discounting-illuminance: vc-discounting-illuminance($discounting-illuminance);
+  $background-y-to-whitepoint-y: vc-n($background-lstar, $whitepoint);
+  $aw: vc-aw($adapting-luminance, $discounting-illuminance, $surround, $whitepoint, $background-lstar);
+  $nbb: vc-nbb($background-lstar, $whitepoint);
+  $ncb: vc-ncb($background-lstar, $whitepoint);
+  $c: vc-c($surround);
+  $nc: vc-nc($surround);
+  $drgb-inverse: (0, 0, 0,);
+  $rgb-d: vc-rgbd($discounting-illuminance, $surround, $adapting-luminance, $whitepoint);
+  $fl: vc-fl($adapting-luminance);
+  $fl-root: math.pow($fl, 0.25);
+  $z: vc-z($background-lstar, $whitepoint);
+
+  $map-output: (
+    'whitepoint': $whitepoint,
+    'adapting-luminance': $adapting-luminance,
+    'background-lstar': $background-lstar,
+    'surround': $surround,
+    'discounting-illuminance': $discounting-illuminance,
+    'background-y-to-whitepoint-y': $background-y-to-whitepoint-y,
+    'aw': $aw,
+    'nbb': $nbb,
+    'ncb': $ncb,
+    'c': $c,
+    'nc': $nc,
+    'drgb-inverse': $drgb-inverse,
+    'rgb-d': $rgb-d,
+    'fl': $fl,
+    'fl-root': $fl-root,
+    'z': $z,
   );
 
-  $k: math.div(1, (5 * $adaplum + 1));
-  $k4: math.pow($k, 4);
-  $k4f: (1 - $k4);
-
-  $fl: ($k4 * $adaplum) + (0.1 * $k4f * $k4f * math.pow(5.0 * $adaplum, math.div(1, 3)));
-
-  $n: math.div(Y-from-lstar($bg-lstar), gm($wp, 1, 2));
-  $z: (1.48 + math.sqrt($n));
-  $nbb: math.div(0.725, math.pow($n, 0.2));
-  $ncb: $nbb;
-
-  $rgb-a-factors: (
-    (
-      (math.pow($fl * gm($rgb-d, 1, 1) * math.div($rW, 100), 0.42)),
-      (math.pow($fl * gm($rgb-d, 1, 2) * math.div($gW, 100), 0.42)),
-      (math.pow($fl * gm($rgb-d, 1, 3) * math.div($bW, 100), 0.42)),
-    ),
-  );
-
-  $rgb-a: (
-    (
-      (math.div((400 * gm($rgb-a-factors, 1, 1)), (gm($rgb-a-factors, 1, 1) + 27.13))),
-      (math.div((400 * gm($rgb-a-factors, 1, 2)), (gm($rgb-a-factors, 1, 2) + 27.13))),
-      (math.div((400 * gm($rgb-a-factors, 1, 3)), (gm($rgb-a-factors, 1, 3) + 27.13))),
-    ),
-  );
-
-  $aw: math.div((40 * gm($rgb-a, 1, 1) + 20 * gm($rgb-a, 1, 2) + gm($rgb-a, 1, 3)), 20) * $nbb;
-
-  $map-debug: (
-    '                 white-point': $wp,
-    '          adapting-luminance': $adaplum,
-    '           background-l-star': $bg-lstar,
-    '                    surround': $surr,
-    '     discounting-illuminance': $discounting-illum,
-    'background-Y-to-whitePoint-Y': $n,
-    '                          aw': $aw,
-    '                         nbb': $nbb,
-    '                         ncb': $ncb,
-    '                           c': $c,
-    '                          nc': $nc,
-    '               d-rgb-inverse': ((0, 0, 0),),
-    '                       rgb-d': $rgb-d,
-    '                          fl': $fl,
-    '                     fl-root': math.pow($fl, 0.25),
-    '                           z': $z,
-  );
-
-  @return $map-debug;
+  @return $map-output;
 }
 
 
 @debug '';
 @each $a, $b in viewing-conditions() {
-  @debug '#{$a} ~> #{$b}';
+  @debug '#{$a} ~>  #{$b}';
 }
 @debug '';
