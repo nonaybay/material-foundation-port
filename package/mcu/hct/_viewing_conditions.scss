@@ -242,10 +242,3 @@
 
   @return $map-output;
 }
-
-
-@debug '';
-@each $a, $b in viewing-conditions() {
-  @debug '#{$a} ~>  #{$b}';
-}
-@debug '';
