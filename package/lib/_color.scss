@@ -1,0 +1,17 @@
+@use 'sass:color';
+@use 'sass:math';
+@use '../glob/constants/color' as *;
+
+
+
+@function linear-srgb-component($component) {
+  $component: math.div($component, $MAX_RGB);
+
+  @if ($component < $BETADELTA) {
+    $component: math.div($component, $DELTA);
+  } @else {
+    $component: math.pow(math.div(($component + $MIN_ALPHA), $MAX_ALPHA), $MAX_GAMMA);
+  }
+
+  @return $component;
+}
