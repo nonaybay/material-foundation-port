@@ -4,6 +4,18 @@
 
 
 
+@function get-r($color) {
+  @return color.red($color);
+}
+
+@function get-g($color) {
+  @return color.green($color);
+}
+
+@function get-b($color) {
+  @return color.blue($color);
+}
+
 @function linear-srgb-component($component) {
   $component: math.div($component, $MAX_RGB);
 

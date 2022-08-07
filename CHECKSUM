@@ -1,6 +1,8 @@
+d3f207b6 ~> package/debug.css
 df12b75c ~> package/mcu/hct/_viewing_conditions.scss
 a446555e ~> package/mcu/utils/_math.scss
 fa539bc8 ~> package/mcu/utils/_color.scss
-57a4f581 ~> package/lib/_color.scss
+5d36b67e ~> package/lib/_color.scss
+fcbe4107 ~> package/debug.scss
 321a7895 ~> package/glob/constants/_color.scss
 7e799d89 ~> README.md
